@@ -19,14 +19,41 @@
     </div>
     <div class="col-md-6">
         <h2><a class="button button-bordered btn w-100" id="generateClassRaceBtn">Vygeneruj si rasu a povolání</a></h2>
-        <div id="raceResult"></div>
+        <div class="row">
+            <div id="raceResult" class="col-md-12"></div>
+
             <img src="{% static 'img/leaf.png' %}" alt="Corner Image" class="corner-image">
+        </div>
     </div>
     <div class="row pt-2">
-      <div class="col-md-4">
+      <div class="col-md-6">
+        <h3 class="">Pokud nemáš kostky tak nezoufej</h3>
+        <p>*a hoď tam tu NAT 20</p>
+        <hr>
+        <div>
+          <label for="diceType">Kostka:</label>
+          <select id="diceType">
+            <option value="4">4-stranná</option>
+            <option value="6">6-stranná</option>
+            <option value="8">8-stranná</option>
+            <option value="10">10-stranná</option>
+            <option value="12">12-stranná</option>
+            <option value="20">20-stranná</option>
+          </select>
+        </div>
+        <div>
+          <label for="diceCount">Počet kostek: </label>
+          <input type="number" id="diceCount" min="1" value="1" max="10">
+        </div>
+        <a class="button button-bordered btn btn-success w-100" id="throwDiceBtn">Hoď</a>
+
+          <div class="pt-3" id="previousRollTable"></div>
+
+      </div>
+      <div class="col-md-6">
         <img src="{% static 'img/paladin.jpg' %}" alt="Image" class="img-fluid" width="100%">
       </div>
     </div>
-  </div>
+
 </div>
 {% endblock %}
