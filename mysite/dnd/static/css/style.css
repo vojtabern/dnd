@@ -1,0 +1,48 @@
+.text-muted {
+        color: #e0e0e0; /* Replace with your desired light blue color */
+    }
+
+.background-image {
+    display: flex;
+    justify-content: center;
+    justify-items: center;
+}
+
+.navbar {
+  background-image: linear-gradient(to top, #FFBA81,   #0000 );
+  transition: background-color 0.5s;
+}
+
+h1{
+    color: red;
+}
+
+.corner-image {
+    width: 30%;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.forest-green{
+    font-size: 18px;
+}
+
+.forest-green tr:nth-child(even) {
+    padding-top: 5px;
+    color: #6B4739; /* Set background color for even-indexed li elements */
+
+}
+
+.forest-green tr:nth-child(odd) {
+    color:  #228B22; /* Set background color for odd-indexed li elements */
+    background-color: #FFBA81;
+}
+
+#generateClassRaceBtn{
+    background-color: #FF8127 !important;
+    color: #FFFFFF;
+}
+#generateClassRaceBtn:hover {
+    background-color: #E4935A !important;
+}
