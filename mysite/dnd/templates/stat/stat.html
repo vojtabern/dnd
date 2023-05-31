@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container pt-5">
+    <div class="row">
+        {% for stat in staty %}
+        <div class="col-md-4">
+            <div class="card">
+                <a href="{{ stat.nazev }}">
+                    {% if stat.vlajka %}
+                        <img src="{{ stat.vlajka.url }}" class="card-img-top" alt="{{ stat.nazev }}">
+                    {% endif %}
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title"><a href="{{ stat.nazev }}">{{ stat.nazev }}</a></h5>
+                    <p class="card-text">Nachází se v: {{ stat.region }}</p>
+                    <p class="card-text">Rozloha: {{ stat.rozloha }}</p>
+                    <p class="card-text">Politické uspořádání: {{ stat.politicke_usporadani }}</p>
+                    {% if stat.politicke_usporadani.popis %}
+                        <hr>
+                        <p class="card-text">{{ stat.politicke_usporadani }}: </p>
+                        <p class="card-text">{{ stat.politicke_usporadani.popis }}</p>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

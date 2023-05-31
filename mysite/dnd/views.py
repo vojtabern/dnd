@@ -1,13 +1,22 @@
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView, View
+from .models import *
 
 def index(request):
     return render(request, "index.html", context=None)
-# Create your views here.
 
+class Region(ListView):
+    model = Region
+    ordering = ["nazev"]
+    context_object_name = "regiony"
+    template_name = "region/region.html"
 
-class MyListView(ListView):
-    pass
+class Stat(ListView):
+    model = Stat
+    ordering = ["region"]
+    context_object_name = "staty"
+    template_name = "stat/stat.html"
+
     # model = MyModel
     #
     # def get_queryset(self):

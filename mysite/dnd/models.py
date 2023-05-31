@@ -7,7 +7,8 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 def uploadnuto(instance, filename):
     return '{0}/{1}/{2}/{3}'.format(instance.region.nazev, instance.nazev, instance.changed_filename, filename)
 
-
+def upload_mapa(instance, filename):
+    return '{0}/{1}/{2}'.format(instance.nazev, instance.changed_filename, filename)
 def upload_vladce(instance, filename):
     lowercase_text = instance.jmeno.lower()
     converted_text = lowercase_text.replace(' ', '_')
@@ -60,7 +61,8 @@ class Region(models.Model):
         ('polární', 'polární'),
     ], verbose_name='Podnebí')
     popis = models.TextField(blank=True, verbose_name='Popis', help_text="Popište základní geografické části regionu, jeho historii a státy které se zde nachází")
-
+    changed_filename = models.CharField(max_length=50, default="mapa", editable=False)
+    mapa = models.ImageField(upload_to=upload_mapa, blank=True, verbose_name="Mapa")
     class Meta:
         ordering = ["nazev"]
         verbose_name = 'Region'
@@ -121,7 +123,7 @@ class Mesto(models.Model):
     nazev = models.CharField(max_length=50, primary_key=True, verbose_name="Název města")
     pocet_obyvatel = models.IntegerField(verbose_name="Počet obyvatel města")
     changed_filename = models.CharField(max_length=50, default="mesto_vesnice", editable=False)
-    rozloha = models.ImageField(upload_to=upload_mesto)
+    mapa = models.ImageField(upload_to=upload_mesto, blank=True)
     hlavni = models.CharField(max_length=20, choices=[
         ('ano','Ano'),
         ('ne','Ne'),

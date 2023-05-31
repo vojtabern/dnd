@@ -1,15 +1,25 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
+<div class="container pt-5">
     <div class="row">
-        <div class="col-md-6">
-            <h2>Welcome to my website!</h2>
-            <p>This is the content of my page.</p>
+        {% for region in regiony %}
+        <div class="col-md-4">
+            <div class="card">
+                <a href="{{ region.nazev }}">
+                    {% if region.mapa %}
+                        <img src="{{ region.mapa.url }}" class="card-img-top" alt="{{ region.nazev }}">
+                    {% endif %}
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title"><a href="{{ region.nazev }}">{{ region.nazev }}</a></h5>
+                    <p class="card-text">Podnebí: {{ region.podnebi }}</p>
+                    <hr>
+                    <p class="card-text">{{ region.popis }}</p>
+                </div>
+            </div>
         </div>
-        <div class="col-md-6">
-            <img src="#" alt="Example Image">
-        </div>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}

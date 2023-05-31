@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    <link rel="shortcut icon" type="image/png" href="{% static 'img/logo.png' %}">
 
     <title>D&Đ</title>
     <!-- Bootstrap CSS -->
@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <div class="container">
+
         {% block header %}
             {% include 'page/header.html' %}
          {% endblock %}
@@ -24,6 +24,7 @@
         {% block navbar %}
             {% include 'page/navbar.html' %}
          {% endblock %}
+        <div class="container">
         <div class="content">
             {% block content %}{% endblock %}
         </div>
