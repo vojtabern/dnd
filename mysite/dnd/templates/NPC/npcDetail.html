@@ -1,0 +1,194 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h1>NPC Detail</h1>
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <th>Jméno</th>
+                            <td>{{ NPC.jmeno }}</td>
+                        </tr>
+                        <tr>
+                            <th>Příjmení</th>
+                            <td>{{ NPC.prijmeni }}</td>
+                        </tr>
+                        <tr>
+                            <th>Rasa</th>
+                            <td>{{ NPC.get_rasa_display }}</td>
+                        </tr>
+                        <tr>
+                            <th>Věk</th>
+                            <td>{{ NPC.vek }}</td>
+                        </tr>
+                        <tr>
+                            <th>Výška</th>
+                            <td>{{ NPC.vyska }}</td>
+                        </tr>
+                        <tr>
+                            <th>Oči</th>
+                            <td>{{ NPC.oci }}</td>
+                        </tr>
+                        <tr>
+                            <th>Obličej</th>
+                            <td>{{ NPC.oblicej }}</td>
+                        </tr>
+                        <tr>
+                            <th>Kladné vlastnosti</th>
+                            <td>{{ NPC.kladne_vlastnosti }}</td>
+                        </tr>
+                        <tr>
+                            <th>Záporné vlastnosti</th>
+                            <td>{{ NPC.zaporne_vlastnosti }}</td>
+                        </tr>
+                        <tr>
+                            <th>Specifické znaky</th>
+                            <td>{{ NPC.specifickeZnaky }}</td>
+                        </tr>
+                        <tr>
+                            <th>Vztah k hráčům</th>
+                            <td>{{ NPC.get_vztahHraci_display }}</td>
+                        </tr>
+                        <tr>
+                            <th>Stát</th>
+                            <td>{{ NPC.stat_nazev }}</td>
+                        </tr>
+                        <tr>
+                            <th>Povaha</th>
+                            <td>{{ NPC.povaha }}</td>
+                        </tr>
+                        {% if NPC.fotka %}
+                        <tr>
+                            <th>Fotka</th>
+                            <td><img src="{{ NPC.fotka.url }}" alt="Fotka" width="100%"></td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <th>Nachází se</th>
+                            <td>
+                                <ul>
+                                    {% for m in NPC.mesto.all %}
+                                        <li>{{ m.nazev }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                        </tr>
+                        {% for s in spravci %}
+                            {% if s.spravce_id == NPC.idnpc %}
+                            <tr>
+                                <th>Správce města</th>
+                                <td>
+                                    {{ s.mesto.nazev }} ({{ s.mesto.stat_nazev.nazev }})
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                        {% for v in vladce %}
+                            {% if v.vladce_id == NPC.idnpc %}
+                            <tr>
+                                <th>Vládce státu</th>
+                                <td>
+                                    <b>{{ v.stat.nazev }} ({{ v.stat.politicke_usporadani }})</b>
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-8">
+                <h2>StatTable</h2>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Síla</th>
+                            <th>Obratnost</th>
+                            <th>Výdrž</th>
+                            <th>Inteligence</th>
+                            <th>Moudrost</th>
+                            <th>Charisma</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stattable in stattable %}
+                            <tr>
+                                <td>{{ stattable.sila }}&nbsp;[{{ stattable.sila_modifier }}]</td>
+                                <td>{{ stattable.obratnost }}&nbsp;[{{ stattable.obratnost_modifier}}]</td>
+                                <td>{{ stattable.vydrz }}&nbsp;[{{ stattable.vydrz_modifier }}]</td>
+                                <td>{{ stattable.inteligence }}&nbsp;[{{ stattable.inteligence_modifier }}]</td>
+                                <td>{{ stattable.moudrost }}&nbsp;[{{ stattable.moudrost_modifier }}]</td>
+                                <td>{{ stattable.charisma }}&nbsp;[{{ stattable.charisma_modifier }}]</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6">No StatTable available.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <h2>Basic stats table</h2>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Brnění</th>
+                            <th>Životy</th>
+                            <th>Kostky životů</th>
+                            <th>Rychlost</th>
+                            <th>Vnímání</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stattable in stattable %}
+                            <tr>
+                                <td>{{ stattable.ac }}</td>
+                                <td>{{ stattable.health_die }}</td>
+                                <td>{{ stattable.roll_health }}</td>
+                                <td>{{ stattable.speed }} sáhů</td>
+                                <td>{{ stattable.perception }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6">No StatTable available.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <h2>Actions</h2>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Název</th>
+                            <th>Maximální poškození</th>
+                            <th>Bonus k zásahu</th>
+                            <th>Dosah</th>
+                            <th>Dosah na dálku</th>
+                            <th>DC</th>
+                            <th>Popis</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for action in actions %}
+                            <tr>
+                                <td>{{ action.nazev }}</td>
+                                <td>{{ action.max_dmg }}</td>
+                                <td>{{ action.bonus_to_hit }}</td>
+                                <td>{{ action.reach }}</td>
+                                <td>{{ action.range }}</td>
+                                <td>{{ action.dc }}</td>
+                                <td>{{ action.desc }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="8">No Actions available.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <p><a class="btn btn-success w-100" target="_blank" href="{% url 'npcPrint' NPC.idnpc %}">Tisknutelná verze</a></p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container pt-5">
+    <div class="row">
+        {% for mesto in mesta %}
+        <div class="col-md-4">
+            <div class="card">
+                <a href="{{ mesto.nazev }}">
+                    {% if mesto.mapa %}
+                        <img src="{{ mesto.mapa.url }}" class="card-img-top" alt="{{ mesto.nazev }}">
+                    {% endif %}
+                </a>
+                <div class="card-body">
+                {% if mesto.hlavni == "ano" %}
+                    <h5 class="card-header text-center">Hlavní město: ({{ mesto.typ_mesta }}) <a href="{{ mesto.nazev }}">{{ mesto.nazev }}</a></h5>
+                    <h5 class="card-title"> Stát: {{ mesto.stat_nazev.nazev }}</h5>
+                    <p class="card-text">Počet obyvatel: {{ mesto.pocet_obyvatel }}</p>
+                {% else %}
+                    <h5 class="card-title">Stát: {{ mesto.stat_nazev.nazev }}</h5>
+                    <h5 class="card-title"><a href="{{ mesto.nazev }}">{{ mesto.typ_mesta }}: {{ mesto.nazev }}</a></h5>
+                    <p class="card-text">Počet obyvatel: {{ mesto.pocet_obyvatel }}</p>
+                {% endif %}
+                    {% for spravce in spravci %}
+                        {% if spravce.mesto == mesto %}
+                            <p class="card-text">Správce: <b>{{ spravce.spravce.jmeno }} {{ spravce.spravce.prijmeni }}</b></p>
+                        {% endif %}
+                    {% endfor %}
+                    <hr>
+                    <p class="card-text">Opevnění</p>
+                    {% for o in mesto.opevneni_typ.all %}
+                        <ul>
+                            <li>
+                                {{ o.typ }}
+                            </li>
+                        </ul>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

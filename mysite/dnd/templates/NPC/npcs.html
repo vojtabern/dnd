@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+    <div class="container pt-5">
+        <div class="row">
+        {% for npc in NPCs %}
+            <div class="col-md-4">
+                <div class="card bg-light mb-3" style="max-width: 18rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    {% if npc.fotka %}
+                        <img src="{{ npc.fotka.url }}" class="card-img-top" alt="{{ npc.prijmeni }}">
+                    {% endif %}
+                  <div class="card-header"><a href="{% url 'npcDetail' npc.idnpc %}">{{ npc.jmeno }} {{ npc.prijmeni }}</a></div>
+                  <div class="card-body">
+                    <h5 class="card-title">{{ npc.rasa }}, {{ npc.povaha }}</h5>
+                    <p class="card-text">Věk: {{ npc.vek }} let</p>
+                    <p class="card-text">Výška: {{ npc.vyska }} cm</p>
+                    <p class="card-text">Výskyt ve <b>{% for m in npc.mesto.all %}{{ m.nazev }} {% endfor %}</b></p>
+                    <p class="card-text">Vztah k hráčům <b>{{ npc.vztahHraci }}</b></p>
+                    <p class="card-text"></p>
+                  </div>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+{% endblock %}
