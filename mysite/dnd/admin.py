@@ -13,5 +13,8 @@ admin.site.register(Mesto)
 admin.site.register(TypMesta)
 admin.site.register(Budova)
 admin.site.register(StatTable)
+admin.site.register(Geografie)
+admin.site.register(InterestingPlaces)
+admin.site.register(Actions)
 
 # Register your models here.

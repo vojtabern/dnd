@@ -3,6 +3,7 @@ from django.db import models
 
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core import validators
 
 def uploadnuto(instance, filename):
     return '{0}/{1}/{2}/{3}'.format(instance.region.nazev, instance.nazev, instance.changed_filename, filename)
@@ -24,7 +25,15 @@ def upload_mesto(instance, filename):
 
 def get_npc_upload_path(instance, filename):
     mesto_names = "_".join([mesto.stat_nazev.region.nazev + "/" + mesto.stat_nazev.nazev for mesto in instance.mesto.all()])
-    return f"{mesto_names}/NPCs/{instance.vztahHraci}/{instance.jmeno}_{instance.prijmeni}.jpg"
+    return f"{mesto_names}/places/{instance.vztahHraci}/{instance.jmeno}_{instance.prijmeni}.jpg"
+
+def get_place_upload_path(instance, filename):
+    mesto_names = "_".join([mesto.stat_nazev.region.nazev + "/" + mesto.stat_nazev.nazev for mesto in instance.mesto.all()])
+    return f"{mesto_names}/places/{instance.typ}/{instance.nazev}.png"
+
+def get_budova_upload_path(instance, filename):
+    mesto_names = "_".join([mesto.stat_nazev.region.nazev + "/" + mesto.stat_nazev.nazev for mesto in instance.mesto.all()])
+    return f"{mesto_names}/budovy/{instance.typ_budovy}/{instance.nazev}.png"
 
 
 class Opevneni(models.Model):
@@ -50,6 +59,27 @@ class Povaha(models.Model):
     def __str__(self):
         return self.povaha
 
+class Geografie(models.Model):
+    CHOICES_TYP = (
+        ('hora', 'Hora'),
+        ('pohori', 'Pohoří'),
+        ('hvozd', 'Hvozd'),
+        ('les', 'Les'),
+        ('poust', 'Poušť'),
+        ('kopce', 'Kopce')
+    )
+
+    nazev = models.CharField(max_length=50, primary_key=True, verbose_name='Název místa')
+    typ = models.CharField(max_length=10, choices=CHOICES_TYP, verbose_name='Typ místa')
+    zajimavost = models.TextField(blank=True, verbose_name='Zajímavosti', help_text="Nejvyšší hora, historie místa etc.")
+
+    class Meta:
+        ordering = ['nazev']
+        verbose_name = 'Geografie'
+        verbose_name_plural = 'Geografie'
+
+    def __str__(self):
+        return self.nazev
 
 class Region(models.Model):
     nazev = models.CharField(max_length=50, primary_key=True, verbose_name='Jméno regionu')
@@ -60,8 +90,10 @@ class Region(models.Model):
         ('subpolární', 'subpolární'),
         ('polární', 'polární'),
     ], verbose_name='Podnebí')
+
     popis = models.TextField(blank=True, verbose_name='Popis', help_text="Popište základní geografické části regionu, jeho historii a státy které se zde nachází")
     changed_filename = models.CharField(max_length=50, default="mapa", editable=False)
+    geografie = models.ManyToManyField(Geografie)
     mapa = models.ImageField(upload_to=upload_mapa, blank=True, verbose_name="Mapa")
     class Meta:
         ordering = ["nazev"]
@@ -93,7 +125,8 @@ class Stat(models.Model):
         ('stredni', 'stredni'),
         ('mala', 'mala'),
     ])
-    politicke_usporadani = models.OneToOneField(PolitickeUsporadani, on_delete=models.CASCADE)
+    #potom forgien key
+    politicke_usporadani = models.ManyToManyField(PolitickeUsporadani, verbose_name="Politické uspořádání")
     region = models.ForeignKey(Region, on_delete=models.CASCADE)
     changed_filename = models.CharField(max_length=50,default="vlajka", editable=False)
     vlajka = models.ImageField(upload_to=uploadnuto, blank=True, verbose_name="Vlajka")
@@ -145,6 +178,25 @@ class Mesto(models.Model):
             return f"{self.stat_nazev} Hlavní město je {self.typ_mesta}: {self.nazev})"
 
 
+class InterestingPlaces(models.Model):
+    nazev = models.CharField(max_length=50, verbose_name="Název místa")
+    popis = models.CharField(max_length=45, blank=True, verbose_name="Popis", help_text="Popis místa")
+    typ = models.CharField(max_length=20, choices=[
+        ('dungeon','Dungeon'),
+        ('jeskyně','Jeskyně'),
+        ('place_of_power', "Místo moci"),
+        ('building', 'Budova'),
+    ], verbose_name="Typ místa")
+    mapa = models.ImageField(upload_to=get_place_upload_path, verbose_name="Mapa", blank=True)
+    mesto = models.ForeignKey(Mesto, on_delete=models.CASCADE, verbose_name="Město")
+
+    class Meta:
+        ordering = ["nazev"]
+        verbose_name = 'Zajímavé místo'
+        verbose_name_plural = 'Zajímavá místa'
+
+    def __str__(self):
+            return f"{ self.typ} {self.nazev}"
 class NPC(models.Model):
     idnpc = models.IntegerField(primary_key=True)
     jmeno = models.CharField(max_length=45, null=True)
@@ -154,9 +206,8 @@ class NPC(models.Model):
         ('trpaslík', 'Trpaslík'),
         ('člověk', 'Člověk'),
         ('gnóm', 'Gnóm'),
-        ('půlork', 'Půlork'),
+        ('půlork', 'Půl-ork'),
         ('drakorozený', 'Drakorozený'),
-        ('zvíře', 'zvíře'),
         ('půlčík', 'Půlčík'),
         ('půlelf', 'Půl-elf'),
         ('tiefling', 'Tiefling'),
@@ -232,6 +283,7 @@ class Budova(models.Model):
         ('magic_shop', 'Obchod s magickými předměty (magic shop)'),
     ], verbose_name="Typ budovy")
     mesto_nazev = models.ForeignKey(Mesto, on_delete=models.CASCADE, verbose_name="Město")
+    mapa = models.ImageField(upload_to=get_budova_upload_path, verbose_name="Mapa", blank=True)
     vlastnik = models.ForeignKey(NPC, on_delete=models.CASCADE)
 
     class Meta:
@@ -246,6 +298,12 @@ class Budova(models.Model):
 
 class StatTable(models.Model):
     npc = models.ForeignKey(NPC, on_delete=models.CASCADE, verbose_name="NPC")
+    ac = models.IntegerField(default=10, verbose_name="Brnění")
+    speed = models.IntegerField(default=6, verbose_name="Rychlost", validators=[MinValueValidator(1), MaxValueValidator(60)])
+    health_die = models.IntegerField(default=10, verbose_name="Životů")
+    roll_health = models.CharField(max_length=20, validators=[validators.RegexValidator(r'^[0-9]+k[0-9]+(\+[0-9]+)?$', 'Zadej formát s "k".')],
+                                 help_text="Formát 1k8", blank=True, verbose_name="Kostky životů")
+    perception =  models.IntegerField(default=10, verbose_name="Vnímání")
     sila = models.IntegerField(
         default=10,
         verbose_name="Síla",
@@ -268,7 +326,7 @@ class StatTable(models.Model):
     )
     moudrost = models.IntegerField(
         default=10,
-        verbose_name="Inteligence",
+        verbose_name="Moudrost",
         validators=[MinValueValidator(1), MaxValueValidator(30)]
     )
     charisma = models.IntegerField(
@@ -300,3 +358,25 @@ class StatTable(models.Model):
     def __str__(self):
         return f"NPC: {self.npc.prijmeni} : s[{self.sila_modifier}] o[{self.obratnost_modifier}] v[{self.vydrz_modifier}] " \
                f"i[{self.inteligence_modifier}] m[{self.moudrost_modifier}] ch[{self.charisma_modifier}]"
+
+
+class Actions(models.Model):
+    nazev = models.CharField(max_length=80, primary_key=True)
+    npc = models.ManyToManyField(NPC, verbose_name="NPC")
+    dmg_dice = models.CharField(max_length=20, validators=[validators.RegexValidator(r'^[0-9]+k[0-9]+(\+[0-9]+)?$', 'Zadej formát s "k".')],
+                                 help_text="Formát 1k8", blank=True, verbose_name="Kostky poškození")
+    max_dmg = models.IntegerField(blank=True, verbose_name="Maximální možné poškození")
+    bonus_to_hit =  models.IntegerField(verbose_name="Bonus k zásahu", blank=True)
+    reach =  models.IntegerField(verbose_name="Dosah", blank=True)
+    range = models.CharField(max_length=20, blank=True, validators=[validators.RegexValidator(r'^[0-9]+/[0-9]+$', 'Zadej formát s "/".')],
+                                 help_text="Formát 4/6", verbose_name="Dosah na dálku")
+    dc = models.IntegerField(default=10, verbose_name="DC", blank=True)
+    desc = models.TextField(verbose_name="Popis")
+
+    class Meta:
+        ordering = ["nazev"]
+        verbose_name = 'Akce'
+        verbose_name_plural = 'Akce'
+
+    def __str__(self):
+        return f"{self.nazev} {self.max_dmg//2}"

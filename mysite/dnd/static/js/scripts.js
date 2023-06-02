@@ -68,36 +68,96 @@ function shuffleArray(array) {
   return array;
 }
 
-
-
-
+//generate class and race
 $(document).ready(function() {
-    // Define arrays for classes and races
-    // var classes = ["Barbar", "Bard", "Cleric", "Druid", "Fighter", "Monk", "Paladin", "Ranger", "Rogue", "Sorcerer", "Warlock", "Wizard"];
-    // var races = ["Dwarf", "Elf", "Halfling", "Human", "Dragonborn", "Gnome", "Half-Elf", "Half-Orc", "Tiefling"];
+    var classTranslations = {
+        "Barbarian": "Barbar",
+        "Bard": "Bard",
+        "Cleric": "Klerik",
+        "Druid": "Druid",
+        "Fighter": "Bojovník",
+        "Monk": "Mnich",
+        "Paladin": "Paladin",
+        "Ranger": "Hraničář",
+        "Rogue": "Tulák",
+        "Sorcerer": "Čaroděj",
+        "Warlock": "Černokněžník",
+        "Wizard": "Kouzelník"
+    };
 
-    var classes = ["Barbar", "Bard", "Klerik", "Druid", "Bojovník", "Mnich", "Paladin", "Hraničář", "Zloděj", "Čaroděj", "Černokěžník", "Kouzelník", "Tulák"];
-    var races = ["Trpaslík", "Elf", "Halfling", "Člověk", "Drakorozený", "Gnóm", "Půl-elf", "Půl-orc", "Tiefling"];
+    var raceTranslations = {
+        "Dwarf": "Trpaslík",
+        "Elf": "Elf",
+        "Halfling": "Půlčík",
+        "Human": "Člověk",
+        "Dragonborn": "Drakorozený",
+        "Gnome": "Gnóm",
+        "Half-Elf": "Půl-elf",
+        "Half-Orc": "Půl-orc",
+        "Tiefling": "Tiefling"
+    };
+
     // Function to generate random class and race
     function generateResults() {
-        var randomClass = classes[Math.floor(Math.random() * classes.length)];
-        var randomRace = races[Math.floor(Math.random() * races.length)];
-        var resultHTML = "<h1 class='display-4'>Povolání a Rasa</h1>";
-        resultHTML += "<hr><div class='row'>";
-        resultHTML += "<div class='col-md-6'><p>Povolání: <b>" + randomClass + "</b></p><p> Rasa: <b>" + randomRace +"</b></p></div>";
-        resultHTML += "<div class='col-md-6'><img src='./static/img/race_class/" + randomClass.toLowerCase() + ".jpg' width='100%' alt='povolani'></div>";
-        resultHTML += "</div>";
-        return resultHTML;
+        // Fetch class data from API
+        fetch('https://www.dnd5eapi.co/api/classes/')
+            .then(response => response.json())
+            .then(data => {
+                // Get a random class from the API response
+                var randomClassIndex = Math.floor(Math.random() * data.results.length);
+                var randomClass = data.results[randomClassIndex].name;
+                var translatedClass = classTranslations[randomClass];
+
+                // Fetch race data from API
+                fetch('https://www.dnd5eapi.co/api/races/')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Get a random race from the API response
+                        var randomRaceIndex = Math.floor(Math.random() * data.results.length);
+                        var randomRace = data.results[randomRaceIndex].name;
+                        var translatedRace = raceTranslations[randomRace];
+
+                        fetch('https://www.dnd5eapi.co/api/classes/' + randomClass.toLowerCase() +"/")
+                            .then(response => response.json())
+                            .then(classData => {
+                            // Generate the result HTML
+                            var resultHTML = "<h1 class='display-4'>Povolání a Rasa</h1>";
+                            resultHTML += "<hr><div class='row'>";
+                            resultHTML += "<div class='details col-md-8'>";
+                            resultHTML += "<table class='table table-striped'>";
+                            resultHTML += "<thead><tr><th scope='col'>Název</th><th scope='col'>Hodnota</th></tr></thead>";
+                            resultHTML += "<tbody>";
+                            resultHTML += "<tr><td>Povolání</td><td>" + translatedClass + "</td></tr>";
+                            resultHTML += "<tr><td>Rasa</td><td>" + translatedRace + "</td></tr>";
+                            resultHTML += "<tr><td>Životů na 1. úrovni</td><td>" + classData.hit_die + " (mám radši 2* základ)->" + 2*classData.hit_die + "</td></tr>";
+                            resultHTML += "<tr><td>Kostky životů</td><td>" + classData.hit_die + "k + Odolnost</td></tr>";
+                            resultHTML += "<tr><td>Odbornosti</td><td>";
+                            classData.proficiency_choices.forEach(choice => {
+                              resultHTML += choice.desc + "<br>";
+                            });
+                            resultHTML += "</td></tr>";
+                            resultHTML += "</tbody>";
+                            resultHTML += "</table>";
+                            resultHTML += "</div>";
+                            resultHTML += "<div class='col-md-4'><img src='./static/img/race_class/" + randomClass.toLowerCase() + ".jpg' width='100%' alt='povolani'></div>";
+                            resultHTML += "</div>";
+
+                            // Display the result HTML
+                            $("#raceResult").html(resultHTML);
+                        })
+                    })
+                    .catch(error => console.log(error));
+            })
+            .catch(error => console.log(error));
     }
 
     // Event handler for button click
     $("#generateClassRaceBtn").click(function() {
-        var results = generateResults();
-        $("#raceResult").html(results);
+        generateResults();
     });
 });
 
-
+//throw generator
 $(document).ready(function() {
   var previousRoll = null; // Variable to store the previous roll result
 
